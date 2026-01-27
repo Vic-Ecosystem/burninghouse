@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>burninghouse</title>
+  <style>
+    @import url('https://fonts.cdnfonts.com/css/aileron');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --black: #0A0A0A;
+      --orange: #FF4D00;
+      --blue: #0A1A2F;
+      --white: #F5F5F5;
+      --gray: #666666;
+      --max-col: 45ch;
+    }
+
+    html {
+      scroll-behavior: auto;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: 'IBM Plex Mono', 'Courier New', monospace;
+      background: var(--black);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+
+    .viewport {
+      width: 100vw;
+      min-height: 100vh;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* SELECTOR DE IDIOMA */
+    .lang-selector {
+      position: fixed;
+      top: 2rem;
+      right: 2rem;
+      z-index: 1000;
+      display: flex;
+      gap: 0.5rem;
+      font-family: 'Aileron', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+    }
+
+    .lang-btn {
+      background: transparent;
+      border: 1px solid var(--gray);
+      color: var(--gray);
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+
+    .lang-btn.active {
+      border-color: var(--orange);
+      color: var(--orange);
+    }
+
+    .lang-btn:hover {
+      border-color: var(--white);
+      color: var(--white);
+    }
+
+    /* IMAGEN ESTÁNDAR - 3× ALTURA DE burninghouse */
+    .hero-image {
+      height: 3em;
+      /* 300% de la altura del texto burninghouse */
+      width: auto;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 0.3em;
+      object-fit: contain;
+    }
+
+    /* VIEWPORT 1: ADVERTENCIA */
+    #advertencia {
+      background: var(--black);
+      z-index: 10;
+      height: 100vh;
+    }
+
+    .warning-text {
+      font-family: 'Aileron', sans-serif;
+      font-weight: 300;
+      font-size: clamp(12px, 2vw, 18px);
+      color: var(--orange);
+      text-align: center;
+      letter-spacing: 0.3em;
+      line-height: 2;
+      max-width: var(--max-col);
+      padding: 2rem;
+      text-transform: uppercase;
+    }
+
+    .scroll-indicator {
+      position: absolute;
+      bottom: 10vh;
+      font-family: 'Aileron', sans-serif;
+      font-size: 10px;
+      color: var(--orange);
+      letter-spacing: 0.5em;
+      opacity: 0.5;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 0.3;
+      }
+
+      50% {
+        opacity: 0.8;
+      }
+    }
+
+    /* VIEWPORT 2: MÁSCARA SVG */
+    #hero {
+      background: var(--black);
+      position: relative;
+      height: 100vh;
+    }
+
+    .fire-container {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    .fire-mask-svg {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .fire-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .fire-fallback {
+      display: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    @supports not (mask: url(#id)) {
+      .fire-mask-svg {
+        display: none;
+      }
+
+      .fire-fallback {
+        display: block;
+      }
+    }
+
+    /* VIEWPORT 3: NEGACIÓN TRILINGÜE */
+    #negacion {
+      background: var(--blue);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15vh 10vw;
+      gap: 4rem;
+    }
+
+    .lang-block {
+      max-width: var(--max-col);
+      text-align: center;
+    }
+
+    .lang-label {
+      font-family: 'Aileron', sans-serif;
+      font-size: 10px;
+      color: var(--gray);
+      letter-spacing: 0.5em;
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+    }
+
+    .lang-block.es .lang-label {
+      color: var(--orange);
+    }
+
+    .lang-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: clamp(14px, 1.5vw, 18px);
+      line-height: 1.8;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .lang-block.en .lang-text {
+      color: var(--white);
+      opacity: 0.9;
+    }
+
+    .lang-block.ca .lang-text {
+      color: var(--white);
+      opacity: 0.7;
+    }
+
+    .lang-block.es .lang-text {
+      color: var(--orange);
+    }
+
+    /* VIEWPORT 4: DECLARACIÓN */
+    #declaracion {
+      background: var(--white);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10vh 5vw;
+      gap: 6vh;
+      min-height: 100vh;
+    }
+
+    .artist-first {
+      font-family: 'Aileron', sans-serif;
+      font-weight: 700;
+      font-size: clamp(32px, 8vw, 80px);
+      color: var(--black);
+      text-align: center;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+
+    .about-text {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--black);
+      max-width: var(--max-col);
+      text-align: left;
+      display: none;
+    }
+
+    .about-text.active {
+      display: block;
+    }
+
+    .about-text p {
+      margin-bottom: 1.5rem;
+    }
+
+    /* VIEWPORT 5: PILARES */
+    #pilares {
+      background: var(--orange);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3vh;
+      padding: 10vh 5vw;
+      min-height: 100vh;
+    }
+
+    .pillar-wrapper {
+      text-align: center;
+      max-width: var(--max-col);
+    }
+
+    .pillar {
+      font-family: 'Aileron', sans-serif;
+      font-weight: 700;
+      font-size: clamp(20px, 4vw, 36px);
+      color: var(--black);
+      text-transform: lowercase;
+      letter-spacing: 0.02em;
+    }
+
+    .pillar-lang {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--black);
+      opacity: 0.6;
+      margin-top: 0.3rem;
+      letter-spacing: 0.1em;
+    }
+
+    /* VIEWPORT 6: MANIFIESTO EXTENDIDO */
+    #manifiesto {
+      background: var(--black);
+      align-items: center;
+      justify-content: center;
+      padding: 15vh 10vw;
+      flex-direction: column;
+    }
+
+    .manifesto-lang {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .manifesto-lang.active {
+      display: flex;
+    }
+
+    .manifesto-block {
+      margin-bottom: 6vh;
+      max-width: var(--max-col);
+      text-align: left;
+    }
+
+    .manifesto-block:last-child {
+      margin-bottom: 0;
+    }
+
+    .manifesto-title {
+      font-family: 'Aileron', sans-serif;
+      font-weight: 700;
+      font-size: clamp(16px, 2vw, 24px);
+      color: var(--orange);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .manifesto-body {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--white);
+    }
+
+    .manifesto-body p {
+      margin-bottom: 1.5rem;
+    }
+
+    .manifesto-body p:last-child {
+      margin-bottom: 0;
+    }
+
+    /* VIEWPORT 7: CIERRE CON LEGALES */
+    #cierre {
+      background: var(--black);
+      align-items: center;
+      justify-content: center;
+      padding: 5vh 5vw;
+      min-height: 50vh;
+      flex-direction: column;
+      gap: 3rem;
+    }
+
+    .logo-final {
+      font-family: 'Aileron', sans-serif;
+      font-weight: 900;
+      font-size: clamp(24px, 4vw, 48px);
+      color: var(--white);
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+    }
+
+    .legal-links {
+      display: flex;
+      gap: 2rem;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--gray);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .legal-links a {
+      color: var(--gray);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .legal-links a:hover {
+      color: var(--orange);
+    }
+
+    .copyright {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--gray);
+      opacity: 0.7;
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- SELECTOR DE IDIOMA -->
+  <div class="lang-selector">
+    <button class="lang-btn active" data-lang="es">ES</button>
+    <button class="lang-btn" data-lang="ca">CA</button>
+    <button class="lang-btn" data-lang="en">EN</button>
+  </div>
+
+  <!-- VIEWPORT 1: ADVERTENCIA -->
+  <section class="viewport" id="advertencia">
+    <div class="warning-text">
+      Este sitio no es neutral.<br>
+      Procede bajo tu<br>
+      propia responsabilidad.
+    </div>
+    <div class="scroll-indicator">↓</div>
+  </section>
+
+  <!-- VIEWPORT 2: HERO CON MÁSCARA SVG -->
+  <section class="viewport" id="hero">
+    <div class="fire-container">
+      <svg class="fire-mask-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+        <defs>
+          <mask id="fireMask">
+            <rect width="100%" height="100%" fill="black" />
+            <text x="50%" y="50%" text-anchor="middle" dominant-baseline="middle" font-family="Aileron, sans-serif" font-weight="900" font-size="280" fill="white" letter-spacing="-0.02em">
+              burninghouse
+            </text>
+          </mask>
+        </defs>
+        <foreignobject width="100%" height="100%" mask="url(#fireMask)">
+          <video class="fire-video" autoplay loop muted playsinline poster="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1920 1080'%3E%3Crect fill='%23FF4D00' width='1920' height='1080'/%3E%3C/svg%3E">
+            <source src="https://res.cloudinary.com/dcckuazmo/video/upload/q_auto:low,w_1920/v1769465774/Floating_Burning_House_Video_Generation_rscpsg.mp4" type="video/mp4">
+          </video>
+        </foreignobject>
+      </svg>
+      <div class="fire-fallback">
+        <div style="width:100%;height:100%;background:linear-gradient(45deg,#FF4D00,#0A0A0A);display:flex;align-items:center;justify-content:center;">
+          <span style="font-family:Aileron,sans-serif;font-weight:900;font-size:20vw;color:white;">burninghouse</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEWPORT 3: NEGACIÓN TRILINGÜE -->
+  <section class="viewport" id="negacion">
+    <div class="lang-block en">
+      <div class="lang-label">English</div>
+      <div class="lang-text">
+        We are not a record label. We are not a daycare or a private school.<br><br>
+        We are a goddamn sanctuary that keeps you from burning while you break the rules.
+      </div>
+    </div>
+
+    <div class="lang-block ca">
+      <div class="lang-label">Català</div>
+      <div class="lang-text">
+        No som una discogràfica. No som una guarderia ni una escola de pagament.<br><br>
+        Som un maleït refugi de salvació que farà que no et cremis mentre trentes les regles.
+      </div>
+    </div>
+
+    <div class="lang-block es">
+      <div class="lang-label">Español</div>
+      <div class="lang-text">
+        No somos una discográfica. No somos una guardería ni un colegio de pago.<br><br>
+        Somos un maldito refugio de salvación que hará que no te quemes mientras rompes las reglas.
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEWPORT 4: DECLARACIÓN -->
+  <section class="viewport" id="declaracion">
+    <div class="artist-first">ARTIST FIRST · ALWAYS</div>
+
+    <div class="about-text es active">
+      <p>burninghouse es una agencia multiservicio centrada en la música y las industrias creativas. Adopta un enfoque disruptivo, de inspiración punk pero profesional, que sitúa al artista en el centro de todas las áreas: creativa, financiera, contractual y educativa.</p>
+      <p>Empoderamos a los artistas fomentando su creatividad, ayudándoles a asegurar financiación y proporcionándoles una formación adecuada en sus campos creativos. Los artistas disponen de opciones de colaboración flexibles, pudiendo elegir entre trabajar en un proyecto puntual o en el desarrollo de su carrera a largo plazo.</p>
+    </div>
+
+    <div class="about-text ca">
+      <p>burninghouse és una agència multiservei centrada en la música i les indústries creatives. Adopta un enfocament disruptiu, d'inspiració punk però professional, que situa l'artista al centre de totes les àrees: creativa, financera, contractual i educativa.</p>
+      <p>Empoderem els artistes fomentant la seva creativitat, ajudant-los a assegurar finançament i proporcionant-los una formació adequada en els seus àmbits creatius. Els artistes disposen d'opcions de col·laboració flexibles, podent triar entre treballar en un projecte puntual o en el desenvolupament de la seva carrera a llarg termini.</p>
+    </div>
+
+    <div class="about-text en">
+      <p>burninghouse is a multi-service agency focused on the music and creative industries. It embraces a disruptive, punk-inspired but professional approach that centers the artist in all areas—creative, financial, contractual, and educational.</p>
+      <p>We empower artists by encouraging their creativity, aiding in securing funding, and providing proper education in their creative fields. Artists have flexible engagement options, choosing either to work with you on a single project or on long-term career development.</p>
+    </div>
+  </section>
+
+  <!-- VIEWPORT 5: PILARES -->
+  <section class="viewport" id="pilares">
+    <div class="pillar-wrapper">
+      <div class="pillar">contractual_awareness</div>
+      <div class="pillar-lang">ES / consciència_contractual CA / contractual_awareness EN</div>
+    </div>
+
+    <div class="pillar-wrapper">
+      <div class="pillar">financial_empowerment</div>
+      <div class="pillar-lang">ES / empoderament_financer CA / financial_empowerment EN</div>
+    </div>
+
+    <div class="pillar-wrapper">
+      <div class="pillar">_creativity</div>
+      <div class="pillar-lang">ES / _creativitat CA / _creativity EN</div>
+    </div>
+
+    <div class="pillar-wrapper">
+      <div class="pillar">education_</div>
+      <div class="pillar-lang">ES / educació_ CA / education_ EN</div>
+    </div>
+  </section>
+
+  <!-- VIEWPORT 6: MANIFIESTO EXTENDIDO -->
+  <section class="viewport" id="manifiesto">
+    <!-- ESPAÑOL -->
+    <div class="manifesto-lang es active">
+      <div class="manifesto-block">
+        <div class="manifesto-title">Educación como propuesta de valor</div>
+        <div class="manifesto-body">
+          <p>La educación no es un regalo ni un extra: es un servicio central de la agencia. Empodera a los artistas para ser autosuficientes y profesionales, y genera impacto social medible.</p>
+        </div>
+      </div>
+
+      <div class="manifesto-block">
+        <div class="manifesto-title">Equilibrio sin concesiones</div>
+        <div class="manifesto-body">
+          <p>Educación y empoderamiento son value-add reales, no solo freebies. Mantenemos contratos claros, precios transparentes y comunicación profesional.</p>
+          <p>Usamos datos y testimonios para demostrar ROI para artistas y partners. Nos aliamos con abogados, contables y plataformas tecnológicas para que el espíritu punk no choque con la realidad del negocio.</p>
+          <p>burninghouse no es anti-negocio: es pro-artista y pro-sostenibilidad.</p>
+        </div>
+      </div>
+
+      <div class="manifesto-block">
+        <div class="manifesto-title">Una fuerza disruptiva con raíces punk</div>
+        <div class="manifesto-body">
+          <p>burninghouse desafía la cultura mainstream igual que el punk lo hizo con la música y la moda: rechazando la conformidad, construyendo comunidad y armando a la gente con conocimiento.</p>
+          <p>No solo gestionamos carreras: cambiamos la relación entre artistas y sistema.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CATALÀ -->
+    <div class="manifesto-lang ca">
+      <div class="manifesto-block">
+        <div class="manifesto-title">L'educació com a proposta de valor</div>
+        <div class="manifesto-body">
+          <p>L'educació no és un regal ni un extra: és un servei central de l'agència. Empodera els artistes per ser autosuficients i professionals, i genera un impacte social mesurable.</p>
+        </div>
+      </div>
+
+      <div class="manifesto-block">
+        <div class="manifesto-title">Equilibri sense concessions</div>
+        <div class="manifesto-body">
+          <p>L'educació i l'empoderament són value-add reals, no només freebies. Mantenim contractes clars, preus transparents i una comunicació professional.</p>
+          <p>Utilitzem dades i testimonis per demostrar el ROI per a artistes i partners. Ens aliem amb advocats, comptables i plataformes tecnològiques perquè l'esperit punk no xoqui amb la realitat del negoci.</p>
+          <p>burninghouse no és anti-negoci: és pro-artista i pro-sostenibilitat.</p>
+        </div>
+      </div>
+
+      <div class="manifesto-block">
+        <div class="manifesto-title">Una força disruptiva amb arrels punk</div>
+        <div class="manifesto-body">
+          <p>burninghouse desafia la cultura mainstream igual que el punk ho va fer amb la música i la moda: rebutjant la conformitat, construint comunitat i armant la gent amb coneixement.</p>
+          <p>No només gestionem carreres: canviem la relació entre els artistes i el sistema.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENGLISH -->
+    <div class="manifesto-lang en">
+      <div class="manifesto-block">
+        <div class="manifesto-title">Education as a value proposition</div>
+        <div class="manifesto-body">
+          <p>Education is neither a gift nor an extra: it is a core service of the agency. It empowers artists to be self-sufficient and professional, generating a measurable social impact.</p>
+        </div>
+      </div>
+
+      <div class="manifesto-block">
+        <div class="manifesto-title">Uncompromising balance</div>
+        <div class="manifesto-body">
+          <p>Education and empowerment are genuine value-adds, not just freebies. We maintain clear contracts, transparent pricing, and professional communication.</p>
+          <p>We use data and testimonials to demonstrate ROI for both artists and partners. We partner with lawyers, accountants, and tech platforms to ensure that the punk spirit doesn't clash with business reality.</p>
+          <p>burninghouse is not anti-business: it is pro-artist and pro-sustainability.</p>
+        </div>
+      </div>
+
+      <div class="manifesto-block">
+        <div class="manifesto-title">A disruptive force with punk roots</div>
+        <div class="manifesto-body">
+          <p>burninghouse challenges mainstream culture just as punk did with music and fashion: by rejecting conformity, building community, and arming people with knowledge.</p>
+          <p>We don't just manage careers: we change the relationship between artists and the system.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIEWPORT 7: CIERRE CON LEGALES -->
+  <section class="viewport" id="cierre">
+    <div class="logo-final">
+      burninghouse
+      <img src="https://res.cloudinary.com/dcckuazmo/image/upload/v1769487117/logos_vic_ndqoxk.png" alt="" class="hero-image">
+    </div>
+
+    <div class="legal-links">
+      <a href="#privacidad">Privacidad</a>
+      <a href="#condiciones">Condiciones</a>
+      <a href="#cookies">Cookies</a>
+    </div>
+
+    <div class="copyright">
+      © 2026 burninghouse. Todos los derechos reservados.
+    </div>
+  </section>
+
+  <!-- SECCIONES LEGALES (OCULTAS POR DEFECTO) -->
+  <section id="privacidad" class="legal-section" style="display: none;">
+    <div class="legal-content">
+      <h2>Política de Privacidad</h2>
+      <p>Última actualización: Enero 2026</p>
+
+      <h3>1. Información que recopilamos</h3>
+      <p>Recopilamos información que proporcionas directamente cuando te registras, contactas o interactúas con nuestros servicios. Esto incluye nombre, email, datos artísticos y preferencias de contacto.</p>
+
+      <h3>2. Uso de la información</h3>
+      <p>Usamos tu información para: proporcionar servicios educativos, gestionar proyectos, enviar comunicaciones relevantes y cumplir obligaciones legales.</p>
+
+      <h3>3. Protección de datos</h3>
+      <p>Implementamos medidas de seguridad técnicas y organizativas para proteger tus datos personales contra acceso no autorizado, alteración o destrucción.</p>
+
+      <h3>4. Derechos del usuario</h3>
+      <p>Tienes derecho a acceder, rectificar, cancelar u oponerte al tratamiento de tus datos personales. Contacta: hola@burninghouse.es</p>
+    </div>
+  </section>
+
+  <section id="condiciones" class="legal-section" style="display: none;">
+    <div class="legal-content">
+      <h2>Condiciones Generales</h2>
+      <p>Última actualización: Enero 2026</p>
+
+      <h3>1. Aceptación de condiciones</h3>
+      <p>Al acceder a burninghouse, aceptas estas condiciones generales y nuestra política de privacidad.</p>
+
+      <h3>2. Servicios ofrecidos</h3>
+      <p>burninghouse proporciona servicios educativos, gestión artística y consultoría para artistas y profesionales creativos.</p>
+
+      <h3>3. Responsabilidad del usuario</h3>
+      <p>Eres responsable de la veracidad de la información proporcionada y del uso adecuado de nuestros servicios.</p>
+
+      <h3>4. Propiedad intelectual</h3>
+      <p>Todo el contenido de este sitio está protegido por derechos de autor y no puede ser reproducido sin autorización.</p>
+    </div>
+  </section>
+
+  <section id="cookies" class="legal-section" style="display: none;">
+    <div class="legal-content">
+      <h2>Política de Cookies</h2>
+      <p>Última actualización: Enero 2026</p>
+
+      <h3>1. ¿Qué son las cookies?</h3>
+      <p>Las cookies son pequeños archivos de texto que se almacenan en tu dispositivo cuando visitas nuestro sitio web.</p>
+
+      <h3>2. Cookies que utilizamos</h3>
+      <p>Usamos cookies esenciales para el funcionamiento básico del sitio y cookies analíticas anónimas para mejorar la experiencia.</p>
+
+      <h3>3. Control de cookies</h3>
+      <p>Puedes controlar y/o eliminar las cookies desde la configuración de tu navegador.</p>
+    </div>
+  </section>
+
+  <script>
+    // Video control
+    const video = document.querySelector('.fire-video');
+    const heroSection = document.getElementById('hero');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          video.play();
+        } else {
+          video.pause();
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+    observer.observe(heroSection);
+    // Language switcher
+    const langBtns = document.querySelectorAll('.lang-btn');
+    const aboutTexts = document.querySelectorAll('.about-text');
+    const manifestoLangs = document.querySelectorAll('.manifesto-lang');
+    langBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const lang = btn.dataset.lang;
+        // Update buttons
+        langBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        // Update about texts
+        aboutTexts.forEach(text => {
+          text.classList.remove('active');
+          if (text.classList.contains(lang)) {
+            text.classList.add('active');
+          }
+        });
+        // Update manifesto
+        manifestoLangs.forEach(m => {
+          m.classList.remove('active');
+          if (m.classList.contains(lang)) {
+            m.classList.add('active');
+          }
+        });
+      });
+    });
+    // Legal sections navigation
+    document.querySelectorAll('.legal-links a').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.getAttribute('href').substring(1);
+        const section = document.getElementById(target);
+        // Hide all legal sections
+        document.querySelectorAll('.legal-section').forEach(s => {
+          s.style.display = 'none';
+        });
+        // Show target section
+        if (section) {
+          section.style.display = 'block';
+          section.scrollIntoView({
+            behavior: 'smooth'
+          });
+        }
+      });
+    });
+  </script>
+
+</body>
+
+</html>
